@@ -8,12 +8,12 @@ import requests
 from urllib.parse import unquote, parse_qs
 import threading
 from socketserver import ThreadingMixIn
+from http.cookies import SimpleCookie, CookieError
 
 memory = {}
 
 form = '''<!DOCTYPE html>
 <title>Bookmark Server</title>
-<h1>Ты дудень!</h1>
 <form method="POST">
     <label>Long URI:
         <input name="longuri">
@@ -56,6 +56,11 @@ class Shortener(http.server.BaseHTTPRequestHandler):
         # Strip off the / and we have either empty string or a name.
         name = unquote(self.path[1:])
 
+        out_cookie = SimpleCookie()
+        out_cookie["bearname"] = "Smokey Bear"
+        out_cookie["bearname"]["max-age"] = 600
+        out_cookie["bearname"]["httponly"] = True
+
         if name:
             if name in memory:
                 # We know that name! Send a redirect to it.
@@ -72,6 +77,7 @@ class Shortener(http.server.BaseHTTPRequestHandler):
             # Root path. Send the form.
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
+            self.send_header("Set-Cookie", out_cookie["bearname"].OutputString())
             self.end_headers()
             # List the known associations in the form.
             known = "\n".join("{} : {}".format(key, memory[key])
