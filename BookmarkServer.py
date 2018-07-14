@@ -13,6 +13,7 @@ memory = {}
 
 form = '''<!DOCTYPE html>
 <title>Bookmark Server</title>
+<h1>Ты дудень!</h1>
 <form method="POST">
     <label>Long URI:
         <input name="longuri">
